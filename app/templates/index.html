@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Pointy Pipeline</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='favicon/apple-icon-180x180.png')}}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='favicon/favicon-32x32.png')}}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{url_for('static', filename='favicon/favicon-16x16.png')}}">
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+    <div class="organisations">
+        <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Organisation</th>
+          <th scope="col">Address Route</th>
+          <th scope="col">Address Country</th>
+          <th scope="col">Owner</th>
+          <th scope="col">Edit/Delete</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for organisation in organisation_objects %}
+        <tr id="{{ loop.index }}">
+          <td scope="row" contenteditable="false">{{ organisation['name'] }}</td>
+          <td contenteditable="false">{{ organisation['address_route'] }}</td>
+          <td contenteditable="false">{{ organisation['address_country'] }}</td>
+          <td contenteditable="false">{{ organisation['owner_name'] }}</td>
+          <td><button class="btn btn-success" onclick="edit_row($(this), '{{ organisation['id'] }}')">Edit</button> <button class="btn btn-danger" onclick="display_modal('{{ organisation['name'] }}', '{{ organisation['id'] }}', '{{ loop.index }}')">Delete</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+
+    <button class="btn btn-success" onclick="display_creation_modal()">Create Organisation</button>
+    <a href="/closestorganisations" class="btn btn-success">Find Closest Organisation</a>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 class="modal-title" id="myModalLabel">Are you sure you want to delete the following organisation: <span id="org_name"></span>?</h3>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+        <button type="button" id="delete_button" class="btn btn-success" data-dismiss="modal" onclick="">Yes</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+    <div class="modal fade" id="creation_modal" tabindex="-1" role="dialog" aria-labelledby="creation_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3 class="modal-title" id="creation_label">Create Organisation</h3>
+      </div>
+      <form id="create_form" action="/create" method="POST">
+      <div class="modal-body">
+        Organisation Name: <input name="name" class="form-control" required placeholder="Organisation Name"><br>
+        Address Route: <input name="address_route" class="form-control" placeholder="Address Route"><br>
+        Address Country: <input name="address_country" class="form-control" placeholder="Address Country"><br>
+        Owner Name: <input name="owner_name" class="form-control" placeholder="Owner Name"><br>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        <input type="submit" class="btn btn-success" value="Submit">
+      </div>
+      </form>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script src="{{url_for('static', filename='index.js')}}"></script>
+
+
+  </body>
+</html>
