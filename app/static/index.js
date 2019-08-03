@@ -71,6 +71,11 @@ function delete_organisation(id, row_id) {
     });
 }
 
+function display_completion_modal(id) {
+    $('#completion_id').text(id);
+    $("#completion_modal").modal("show");
+}
+
 function display_creation_modal() {
     $("#creation_modal").modal("show");
 }

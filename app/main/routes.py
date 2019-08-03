@@ -1,10 +1,10 @@
 from app.main import bp
 import requests
 import json
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 
 f = open("app/key.txt", "r")
-API_TOKEN = f.readline()
+API_TOKEN = f.readline().strip()
 
 url = "https://api.pipedrive.com/v1/"
 api  = "api_token=" + API_TOKEN
@@ -12,24 +12,51 @@ api  = "api_token=" + API_TOKEN
 @bp.route('/')
 def index():
     oragnisations_request = requests.get(url + "organizations?limit=5&start=0&" + api)
-    organisations_json_data = json.loads(oragnisations_request.content)
+    organisations_json_data = json.loads(oragnisations_request.content.decode('utf-8'))
     organisations_data = organisations_json_data["data"]
     organisation_objects = []
     for organisation in organisations_data:
         object = {"name": organisation["name"],
                   "id": organisation["id"],
-                  "address_route": organisation["address_route"],
-                  "address_country": organisation["address_country"],
+                  "id_num": organisation["a4d182c739831733f713026160af27d8c2cbea9c"],
+                  "full_address": organisation["ae5ac9cd2a5608bddeb9a80abaf3a0220ed100b9"],
+                  "url": organisation["42f105653b173b032024227247a380c5c98eb822"],
+                  "store_type": organisation["475b0aa34d21dbf01357541a25fe683a9ebcc24b"],
+                  "owner_id": organisation["owner_id"]["id"],
                   "owner_name": organisation["owner_name"],
                   "address": organisation["address"]}
         organisation_objects.append(object)
 
-    return render_template("index.html", organisation_objects=organisation_objects)
+    return render_template("index.html", organisation_objects=organisation_objects, start=5)
+
+@bp.route('/getmoreorganisations', methods=["POST"])
+def get_more_organisations():
+    start = request.form["start"]
+    new_start = int(start) + 5
+    oragnisations_request = requests.get(url + "organizations?limit=5&start=" + start + "&" + api)
+    organisations_json_data = json.loads(oragnisations_request.content.decode('utf-8'))
+    organisations_data = organisations_json_data["data"]
+    organisation_objects = []
+    for organisation in organisations_data:
+        object = {"name": organisation["name"],
+                  "id": organisation["id"],
+                  "id_num": organisation["a4d182c739831733f713026160af27d8c2cbea9c"],
+                  "full_address": organisation["ae5ac9cd2a5608bddeb9a80abaf3a0220ed100b9"],
+                  "url": organisation["42f105653b173b032024227247a380c5c98eb822"],
+                  "store_type": organisation["475b0aa34d21dbf01357541a25fe683a9ebcc24b"],
+                  "owner_id": organisation["owner_id"]["id"],
+                  "owner_name": organisation["owner_name"],
+                  "address": organisation["address"]}
+        print(object)
+        organisation_objects.append(object)
+
+    return render_template("index.html", organisation_objects=organisation_objects, start=new_start)
+
 
 @bp.route('/delete/<id>')
 def delete_organisation(id):
     delete_request = requests.delete(url + "organizations/" + id + "?" + api)
-    delete_json_data = json.loads(delete_request.content)
+    delete_json_data = json.loads(delete_request.content.decode('utf-8'))
     is_deleted = delete_json_data['success']
     response = {"is_deleted": is_deleted}
     return json.dumps(response)
@@ -38,13 +65,14 @@ def delete_organisation(id):
 def edit_organisation(id):
     updated_info = request.form.getlist('info[]')
     name = updated_info[0]
-    address_route = updated_info[1]
-    address_country = updated_info[2]
-    owner = updated_info[-1]
+    full_address = updated_info[1]
+    id_num = updated_info[2]
+    store_type = updated_info[3]
     updated_information = {"name": name,
-                            "owner_name": owner,
-                            "address_route": address_route,
-                            "address_country": address_country}
+                            "a4d182c739831733f713026160af27d8c2cbea9c": id_num,
+                           "42f105653b173b032024227247a380c5c98eb822": "http://localhost:8080/internal/shop/" + id_num,
+                            "ae5ac9cd2a5608bddeb9a80abaf3a0220ed100b9": full_address,
+                            "475b0aa34d21dbf01357541a25fe683a9ebcc24b": store_type}
     edit_request = requests.put(url + "organizations/" + id + "?" + api, data=updated_information)
     print(edit_request.status_code)
     return "Done"
@@ -53,19 +81,25 @@ def edit_organisation(id):
 @bp.route('/create', methods=["POST"])
 def create():
     name = request.form["name"]
-    address_route = request.form["address_route"]
-    address_country = request.form["address_country"]
-    owner = request.form["owner_name"]
+    full_address = request.form["full_address"]
+    id_num = request.form["id_num"]
+    store_type = request.form["store_type"]
     creation_information = {"name": name,
-                           "address_route": address_route,
-                           "address_country": address_country,
-                            "owner_name": "Liam"}
-    print(creation_information)
+                           "a4d182c739831733f713026160af27d8c2cbea9c": id_num,
+                           "42f105653b173b032024227247a380c5c98eb822": "http://localhost:8080/internal/shop/" + id_num,
+                            "ae5ac9cd2a5608bddeb9a80abaf3a0220ed100b9": full_address,
+                            "475b0aa34d21dbf01357541a25fe683a9ebcc24b": store_type}
     creation_request = requests.post(url + "organizations?" + api, data=creation_information)
-    print(creation_request.content)
+    if creation_request.status_code != 201:
+        flash("Creation failed!")
+        return redirect(url_for('main.index'))
+
+    data = json.loads(creation_request.content.decode('utf-8'))
+
+    data = data["data"]
+    print(data)
+    id = data["id"]
+    flash("Organisation created with ID: " + str(id))
     return redirect(url_for('main.index'))
 
-@bp.route('/newpage')
-def new_page():
-    pass
 

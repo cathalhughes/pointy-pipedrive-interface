@@ -17,13 +17,19 @@
   </head>
 
   <body>
+  <div style="text-align:center;">
+        <h1>Organisations</h1>
+  </div>
     <div class="organisations">
         <table class="table">
       <thead>
         <tr>
           <th scope="col">Organisation</th>
-          <th scope="col">Address Route</th>
-          <th scope="col">Address Country</th>
+          <th scope="col">Full Address</th>
+          <th scope="col">ID Number of Store</th>
+          <th scope="col">URL</th>
+          <th scope="col">Store Type</th>
+          <th scope="col">Owner ID</th>
           <th scope="col">Owner</th>
           <th scope="col">Edit/Delete</th>
         </tr>
@@ -32,9 +38,12 @@
         {% for organisation in organisation_objects %}
         <tr id="{{ loop.index }}">
           <td scope="row" contenteditable="false">{{ organisation['name'] }}</td>
-          <td contenteditable="false">{{ organisation['address_route'] }}</td>
-          <td contenteditable="false">{{ organisation['address_country'] }}</td>
-          <td contenteditable="false">{{ organisation['owner_name'] }}</td>
+          <td contenteditable="false">{{ organisation['full_address'] }}</td>
+          <td contenteditable="false">{{ organisation['id_num'] }}</td>
+          <td>{{ organisation['url'] }}</td>
+          <td contenteditable="false">{{ organisation['store_type'] }}</td>
+          <td>{{ organisation['owner_id'] }}</td>
+          <td>{{ organisation['owner_name'] }}</td>
           <td><button class="btn btn-success" onclick="edit_row($(this), '{{ organisation['id'] }}')">Edit</button> <button class="btn btn-danger" onclick="display_modal('{{ organisation['name'] }}', '{{ organisation['id'] }}', '{{ loop.index }}')">Delete</button></td>
         </tr>
         {% endfor %}
@@ -42,8 +51,25 @@
     </table>
     </div>
 
+    <div align="right">
+    <form action="/getmoreorganisations" method="POST">
+      <input type="hidden" name="start" value="{{start}}"/>
+      <input type="submit" class="btn btn-success" value="Next Page">
+    </form>
+      </div>
     <button class="btn btn-success" onclick="display_creation_modal()">Create Organisation</button>
     <a href="/closestorganisations" class="btn btn-success">Find Closest Organisation</a>
+
+  <div style="text-align:center">
+  {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+  <strong><p>{{ message }}</p></strong>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
 
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -65,14 +91,14 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h3 class="modal-title" id="creation_label">Create Organisation</h3>
+        <h3 class="modal-title" id="creation_label" >Create Organisation</h3>
       </div>
       <form id="create_form" action="/create" method="POST">
       <div class="modal-body">
         Organisation Name: <input name="name" class="form-control" required placeholder="Organisation Name"><br>
-        Address Route: <input name="address_route" class="form-control" placeholder="Address Route"><br>
-        Address Country: <input name="address_country" class="form-control" placeholder="Address Country"><br>
-        Owner Name: <input name="owner_name" class="form-control" placeholder="Owner Name"><br>
+        Full Address: <input name="full_address" class="form-control" placeholder="Full Address"><br>
+        ID Number: <input name="id_num" class="form-control" placeholder="ID Number"><br>
+        Store Type: <input name="store_type" class="form-control" placeholder="Store Type"><br>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>

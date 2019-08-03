@@ -17,14 +17,8 @@
   </head>
 
   <body>
-    <div style="text-align:center;">
-        <h1>Find Closest Organisations</h1>
-        <form action="/getclosestorganisations" method="POST">
-            Longitude: <input name="longitude" class="form-control" required placeholder="Longitude"><br>
-            Latitude: <input name="latitude" class="form-control" required placeholder="Latitude"><br>
-            <input type="submit" class="btn btn-success" value="Submit">
-        </form>
-    </div>
+ <div id="printable">
+        <h1>Closest Organisations to: {{longitude}}, {{latitude}}</h1>
 
     <br>
 
@@ -40,7 +34,6 @@
           <th scope="col">Store Type</th>
           <th scope="col">Owner ID</th>
           <th scope="col">Owner</th>
-          <th scope="col">Edit/Delete</th>
         </tr>
       </thead>
       <tbody>
@@ -53,19 +46,14 @@
           <td contenteditable="false">{{ organisation['store_type'] }}</td>
           <td>{{ organisation['owner_id'] }}</td>
           <td>{{ organisation['owner_name'] }}</td>
-          <td><button class="btn btn-success" onclick="edit_row($(this), '{{ organisation['id'] }}')">Edit</button> <button class="btn btn-danger" onclick="display_modal('{{ organisation['name'] }}', '{{ organisation['id'] }}', '{{ loop.index }}')">Delete</button></td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
     </div>
-
-    <form action="/printclosestorganisations" method="POST" target="_blank">
-      <input type="hidden" name="longitude" value="{{longitude}}"/>
-      <input type="hidden" name="latitude" value="{{latitude}}"/>
-      <input type="submit" class="btn btn-success" value="Print Table">
-    </form>
     {% endif %}
+
+ </div>
 
 
 
@@ -78,7 +66,15 @@
 
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-    <script src="{{url_for('static', filename='index.js')}}"></script>
+    <script>
+        $( window ).on("load", function() {
+            var printContents = document.getElementById('printable').innerHTML;
+             var originalContents = document.body.innerHTML;
+             document.body.innerHTML = printContents;
+             window.print();
+             window.close()
+        });
+	</script>
 
 
   </body>
