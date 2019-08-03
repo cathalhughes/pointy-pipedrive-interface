@@ -46,10 +46,16 @@ function edit_organisation(information, id) {
      $.ajax({
         url: "edit/" + id,
         type: 'POST',
+        dataType: 'json', // added data type
         data: {'info' : information},
         success: function(res) {
-            alert("Done");
-
+            //res = JSON.parse(res);
+            if(res["is_edited"] === true) {
+                $('#delete_edit').text("Successfully edited organisation with ID: " + id);
+            }
+            else{
+                $('#delete_edit').text("Unable to edit organisation with ID: " + id);
+            }
         }
     });
 }
@@ -62,9 +68,10 @@ function delete_organisation(id, row_id) {
         success: function(res) {
             if(res["is_deleted"] === true) {
                 $('#'+ row_id).remove();
+                $('#delete_edit').text("Successfully deleted organisation with ID: " + id);
             }
             else{
-                alert("Unable to complete deletion");
+                $('#delete_edit').text("Unable to delete organisation with ID: " + id);
             }
 
         }

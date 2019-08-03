@@ -18,10 +18,9 @@ def closest_organisations():
 def get_closest_organisations():
     longitude = float(request.form["longitude"])
     latitude = float(request.form["latitude"])
-    v = {'lat': latitude, 'lon': longitude}
+    user_input = {'lat': latitude, 'lon': longitude}
     organisations_with_distances = get_organisations_with_distances()
-    closest_organisations = closest(organisations_with_distances, v)
-    print(closest_organisations)
+    closest_organisations = closest(organisations_with_distances, user_input)
     return render_template("closest_organisations.html", organisation_objects=closest_organisations, longitude=longitude, latitude=latitude)
 
 @bp.route("/printclosestorganisations", methods=["POST"])
@@ -45,7 +44,6 @@ def get_organisations_with_distances():
         coords = coords.split(",")
         if len(coords) != 2 or '' in coords:
             continue
-        print(coords)
         object = {"name": organisation["name"],
                   "id": organisation["id"],
                   "id_num": organisation["a4d182c739831733f713026160af27d8c2cbea9c"],
@@ -58,7 +56,6 @@ def get_organisations_with_distances():
                   "lat": float(coords[0].strip()),
                   "lon": float(coords[1])}
         organisations_with_distances.append(object)
-    print(organisations_with_distances)
     return organisations_with_distances
 
 def haversine(lat1, lon1, lat2, lon2):
@@ -69,8 +66,5 @@ def haversine(lat1, lon1, lat2, lon2):
 def closest(data, v):
     return sorted(data, key=lambda p: haversine(v['lat'],v['lon'],p['lat'],p['lon']))[:5]
 
-tempDataList = [{'lat': 39.7612992, 'lon': -86.1519681},
-                {'lat': 39.762241,  'lon': -86.158436 },
-                {'lat': 39.7622292, 'lon': -86.1578917}]
 
 

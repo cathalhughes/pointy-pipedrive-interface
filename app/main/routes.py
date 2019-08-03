@@ -47,7 +47,6 @@ def get_more_organisations():
                   "owner_id": organisation["owner_id"]["id"],
                   "owner_name": organisation["owner_name"],
                   "address": organisation["address"]}
-        print(object)
         organisation_objects.append(object)
 
     return render_template("index.html", organisation_objects=organisation_objects, start=new_start)
@@ -74,8 +73,10 @@ def edit_organisation(id):
                             "ae5ac9cd2a5608bddeb9a80abaf3a0220ed100b9": full_address,
                             "475b0aa34d21dbf01357541a25fe683a9ebcc24b": store_type}
     edit_request = requests.put(url + "organizations/" + id + "?" + api, data=updated_information)
-    print(edit_request.status_code)
-    return "Done"
+    edit_json_data = json.loads(edit_request.content.decode('utf-8'))
+    is_edited = edit_json_data['success']
+    response = {"is_edited": is_edited}
+    return json.dumps(response)
 
 
 @bp.route('/create', methods=["POST"])
@@ -95,9 +96,7 @@ def create():
         return redirect(url_for('main.index'))
 
     data = json.loads(creation_request.content.decode('utf-8'))
-
     data = data["data"]
-    print(data)
     id = data["id"]
     flash("Organisation created with ID: " + str(id))
     return redirect(url_for('main.index'))
